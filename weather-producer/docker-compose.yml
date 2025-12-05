@@ -1,0 +1,79 @@
+version: '3.8'
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    networks:
+      - gdash-net
+
+  weather-producer:
+    image: weather-producer
+    build:
+      context: .
+    depends_on:
+      - rabbitmq
+    environment:
+      - RABBIT_HOST=rabbitmq
+      - RABBIT_USER=guest
+      - RABBIT_PASS=guest
+      - RABBIT_QUEUE=weather_queue
+      - LATITUDE=-12.4785
+      - LONGITUDE=-49.1249
+      - CITY=Alvorada-TO
+      - INTERVAL_MINUTES=60
+    networks:
+      - gdash-net
+    restart: unless-stopped
+
+  go-worker:
+    build:
+      context: ../go-worker
+    depends_on:
+      - rabbitmq
+    environment:
+      - RABBIT_HOST=rabbitmq
+      - RABBIT_USER=guest
+      - RABBIT_PASS=guest
+      - RABBIT_QUEUE=weather_queue
+    networks:
+      - gdash-net
+    restart: unless-stopped
+
+  mongodb:
+    image: mongo:7
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - gdash-net
+
+  backend-api:
+    build:
+      context: ../backend-api
+    volumes:
+      - ../backend-api/src:/usr/src/app/src
+      - /usr/src/app/node_modules
+    command: npm run start:dev
+    depends_on:
+      - mongodb
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017/weatherdb
+    ports:
+      - "3000:3000"
+    networks:
+      - gdash-net
+    restart: unless-stopped
+
+volumes:
+  mongodb_data:
+
+networks:
+  gdash-net:
+    driver: bridge

@@ -16,12 +16,9 @@ export class WeatherService {
     private readonly insightModel: Model<WeatherInsight>,
   ) { }
 
-  // ---------- LOGS BÁSICOS ----------
-
   async createLog(data: any) {
     const created = await this.weatherModel.create(data);
 
-    // Recalcula insights sempre que chega dado novo
     await this.recomputeInsightsAndSave();
 
     return created;
@@ -31,7 +28,6 @@ export class WeatherService {
     return this.weatherModel.find().sort({ timestamp: -1 }).exec();
   }
 
-  // ---------- EXPORT CSV ----------
 
   async exportCsv(): Promise<string> {
     const logs = await this.weatherModel.find().sort({ timestamp: -1 }).lean();
@@ -55,8 +51,6 @@ export class WeatherService {
     return headers.join(',') + '\n' + rows.join('\n');
   }
 
-  // ---------- EXPORT XLSX ----------
-
   async exportXlsx(): Promise<Buffer> {
     const logs = await this.weatherModel.find().sort({ timestamp: -1 }).lean();
 
@@ -79,19 +73,14 @@ export class WeatherService {
     return Buffer.from(arrayBuffer);
   }
 
-  // ---------- INSIGHTS: PONTO CENTRAL ----------
-
-  // Usado pelo controller (GET/POST /insights)
   async generateInsights() {
-    // pega último insight salvo
+
     const last = await this.insightModel.findOne().sort({ updatedAt: -1 }).lean();
 
-    // se existe e já tem cidade -> retorna normal
     if (last && last.cidade) {
       return last;
     }
 
-    // se existe mas NÃO tem cidade -> corrige e salva
     if (last && !last.cidade) {
       const updated = await this.insightModel.findOneAndUpdate(
         { _id: last._id },
@@ -102,12 +91,9 @@ export class WeatherService {
       return updated;
     }
 
-    // se não existe -> recalcula tudo
     return this.recomputeInsightsAndSave();
   }
 
-
-  // Recalcula a partir dos logs e grava no MongoDB
   async recomputeInsightsAndSave() {
     const logs = await this.weatherModel.find().sort({ timestamp: 1 }).lean();
 
@@ -138,7 +124,6 @@ export class WeatherService {
     return saved;
   }
 
-  // LÓGICA DE INSIGHTS AVANÇADOS
   private computeInsightsFromLogs(logs: any[]) {
     const temps = logs.map(l => l.temperature_c).filter((v: any) => v !== null && v !== undefined);
     const hums = logs.map(l => l.humidity).filter((v: any) => v !== null && v !== undefined);
@@ -153,7 +138,6 @@ export class WeatherService {
     const windAvg = avg(winds);
     const rainMax = rains.length ? Math.max(...rains) : null;
 
-    // Tendência da temperatura (simples: compara primeiro e último)
     let tendencia = 'estável';
     if (temps.length > 2) {
       const first = temps[0];
@@ -162,7 +146,6 @@ export class WeatherService {
       else if (last < first - 1) tendencia = 'caindo';
     }
 
-    // Classificação de "tipo de dia"
     let classificacao = 'indefinido';
     if (tempAvg !== null) {
       if (tempAvg < 18) classificacao = 'frio';
@@ -170,7 +153,6 @@ export class WeatherService {
       else classificacao = 'quente';
     }
 
-    // Score de conforto (0–100)
     let conforto = 100;
 
     if (tempAvg !== null) {
@@ -193,7 +175,6 @@ export class WeatherService {
     if (conforto < 0) conforto = 0;
     if (conforto > 100) conforto = 100;
 
-    // Alertas
     const alertas: string[] = [];
 
     if (tempAvg !== null && tempAvg >= 32) {
@@ -212,7 +193,6 @@ export class WeatherService {
       alertas.push('Umidade muito alta (>= 85%).');
     }
 
-    // Resumo em texto (sem IA externa, mas descritivo)
     const resumoPartes: string[] = [];
 
     if (tempAvg !== null) {
@@ -252,8 +232,6 @@ export class WeatherService {
       resumo,
     };
   }
-
-  // ---------- CRON: REGERAR INSIGHTS PERIODICAMENTE ----------
 
   @Cron(CronExpression.EVERY_HOUR)
   async cronRecomputeInsights() {

@@ -1,4 +1,3 @@
-// src/pages/Pokemon.tsx
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { DashboardLayout } from "../layouts/DashboardLayout";
@@ -24,7 +23,6 @@ export default function Pokemon() {
   const [pokemons, setPokemons] = useState<PokemonItem[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // estado do filtro/busca global
   const [searchTerm, setSearchTerm] = useState("");
   const [searchError, setSearchError] = useState<string | null>(null);
   const [searchLoading, setSearchLoading] = useState(false);
@@ -36,7 +34,6 @@ export default function Pokemon() {
   const borderLight = "#dcdcdc";
   const primaryColor = theme === "dark" ? "#a855f7" : "#0b6e78";
 
-  // --------- CARREGAR LISTA PAGINADA ---------
   useEffect(() => {
     async function load() {
       setLoading(true);
@@ -58,18 +55,14 @@ export default function Pokemon() {
       }
     }
 
-    // só carrega paginação quando não está buscando
     if (!searchTerm.trim()) {
       load();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, searchTerm]);
 
-  // --------- BUSCA GLOBAL (NOME / ID) COM DEBOUNCE ---------
   useEffect(() => {
     const q = searchTerm.trim();
 
-    // se limpou o campo, volta para lista normal
     if (!q) {
       setSearchError(null);
       setSearchResult(null);
@@ -121,7 +114,7 @@ export default function Pokemon() {
           setSearchLoading(false);
         }
       }
-    }, 400); // debounce de 400ms
+    }, 400);
 
     return () => {
       cancelled = true;
@@ -139,13 +132,11 @@ export default function Pokemon() {
     setPage((p) => p + 1);
   };
 
-  // qual lista mostrar?
   const listToShow: PokemonItem[] =
     searchTerm.trim() && searchResult !== null ? searchResult : pokemons;
 
   const isFiltering = !!searchTerm.trim();
 
-  // --------- ESTILO DO INPUT (FORÇANDO COR) ---------
   const inputStyle: React.CSSProperties = {
     backgroundColor: theme === "dark" ? "#111827" : "#ffffff",
     color: theme === "dark" ? "#ffffff" : "#111827",
@@ -170,7 +161,7 @@ export default function Pokemon() {
             placeholder="Buscar pelo nome ou ID (ex: pikachu, 25)..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            style={inputStyle} // <- AQUI GARANTE AS CORES
+            style={inputStyle}
             className="
               flex-1 px-4 py-2 rounded-md border shadow-sm
               placeholder:text-gray-500

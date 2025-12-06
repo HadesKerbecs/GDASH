@@ -47,7 +47,7 @@ func main() {
 	msgs, err := ch.Consume(
 		queue,
 		"",
-		false, // ACK manual
+		false,
 		false,
 		false,
 		false,
@@ -71,7 +71,6 @@ func main() {
 
 		log.Printf("Mensagem recebida: %+v\n", wm)
 
-		// Passo 3 — Enviar para API NestJS
 		err = enviarParaAPI(wm)
 		if err != nil {
 			log.Printf("Erro ao enviar para API: %v", err)

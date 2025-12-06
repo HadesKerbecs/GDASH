@@ -1,5 +1,3 @@
-// src/pages/Dashboard.tsx
-
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -26,7 +24,6 @@ import {
   CartesianGrid,
 } from "recharts";
 
-// IMPORTS DO SHADCN (OBRIGATÓRIO)
 import {
   ChartContainer,
   ChartLegend,
@@ -38,7 +35,7 @@ import {
 export function Dashboard() {
   const { theme } = useTheme();
 
-  const darkBg = "#0d0f18"; // Fundo tema escuro
+  const darkBg = "#0d0f18";
   const lightBg = "#ffffff";
 
   const [logs, setLogs] = useState<any[]>([]);
@@ -69,7 +66,6 @@ export function Dashboard() {
     time: new Date(r.timestamp).toLocaleTimeString(),
   }));
 
-  // CORES DE TEXTO, EIXO E GRID (COMPORTAMENTO DO TEMA)
   const colors = {
     text: theme === "dark" ? "#ffffff" : "#0b6e78",
     axis: theme === "dark" ? "#ffffff" : "#333333",

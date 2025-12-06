@@ -16,7 +16,6 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  // registro via /auth/register
   async register(dto: CreateUserDto) {
     const existing = await this.usersService.findByEmail(dto.email);
     if (existing) {
@@ -26,8 +25,7 @@ export class AuthService {
     const user = await this.usersService.create(dto);
     return user;
   }
-
-  // login via /auth/login
+  
   async login(dto: LoginDto) {
     const user = await this.usersService.findByEmail(dto.email);
     if (!user) {

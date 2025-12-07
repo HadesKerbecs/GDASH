@@ -1,3 +1,4 @@
+# Branch de entrega: eduardo-tristao
 # SkyPulse – Plataforma Full‑Stack com Autenticação JWT, CRUD de Usuários e Integrações
 
 Este projeto consiste em uma aplicação full‑stack com autenticação JWT, CRUD de usuários, consultas a APIs externas (PokéAPI, Open-Meteo, SWAPI) e gerenciamento de sessão com expiração automática.

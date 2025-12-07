@@ -120,6 +120,7 @@ Esse usuário é criado automaticamente caso não exista.
 └── ├── docker-compose.yml
 ```
 
+```
 +-----------------------------+
 |        Frontend (React)     |
 |  Vite, Theme System, Toast  |
@@ -138,13 +139,6 @@ Esse usuário é criado automaticamente caso não exista.
 | WorkerPy  |    | WorkerGo     |
 | Tasks/API |    | Paralelas    |
 +-----------+    +--------------+
-
----
-
-## 🧪 Testes (Opcional)
-Para rodar testes do backend:
-```
-npm run test
 ```
 
 ---
